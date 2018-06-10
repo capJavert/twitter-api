@@ -49,15 +49,71 @@ class DirectMessaging {
         }
     }
 
-    async create(text, username) {
+    async create(text, usernames) {
+        if (!Array.isArray(usernames)) {
+            usernames = [usernames]
+        }
+
+        try {
+            await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
+
+            await this.page.waitForSelector('.DMComposeButton')
+            await this.page.click('.DMComposeButton')
+
+            await this.page.waitForSelector('textarea.twttr-directmessage-input')
+
+            let hasRecipients = false
+
+            for (let username of usernames.map(u => u.toLowerCase())) {
+                await this.page.type('textarea.twttr-directmessage-input', username)
+
+                let suggestions = await this.page.$$eval('.DMTypeaheadSuggestions .username', elements =>
+                    elements.map(e => e.innerText.toLowerCase().replace('@', ''))
+                )
+
+                // console.log(suggestions)
+
+                let selectedUserIndex = suggestions.indexOf(username)
+
+                if (selectedUserIndex > -1) {
+                    hasRecipients = true
+
+                    let suggestionsList = await this.page.$$('.DMTypeaheadSuggestions-item')
+                    await suggestionsList[selectedUserIndex].click()
+                }
+
+
+                // console.log(hasRecipients)
+            }
+
+            if (hasRecipients && await !!this.page.$eval('.dm-initiate-conversation', e => e.disabled)) {
+                await this.page.click('.dm-initiate-conversation')
+                await this.page.waitForSelector('.DMComposer-editor')
+                await this.page.type('.DMComposer-editor', text)
+                await this.page.click('.messaging-text')
+
+                let conversation = { recipients: usernames }
+
+                conversation.id = await this.page.$eval('.DMConversation', meta =>
+                    meta.getAttribute('data-thread-id')
+                )
+
+                return conversation
+            } else {
+                return false
+            }
+        } catch(e) {
+            console.log(e)
+
+            return false
+        }
+    }
+
+    async reply(text, conversationId) {
 
     }
 
-    async reply(text, messageId) {
-
-    }
-
-    async delete(messageId) {
+    async delete(conversationId) {
 
     }
 }
