@@ -1,5 +1,5 @@
 const User = require('./user')
-const ConditionsUtil = require('../helpers/conditions-util')
+const DirectMessaging = require('./direct-messaging')
 
 class Twitter {
     /**
@@ -102,6 +102,15 @@ class Twitter {
      */
     user() {
         return new User(this.page, this.data)
+    }
+
+    /**
+     * Return direct messaging's object and methods
+     *
+     * @returns {DirectMessaging}
+     */
+    directMessaging() {
+        return new DirectMessaging(this.page, this.data)
     }
 
 }
