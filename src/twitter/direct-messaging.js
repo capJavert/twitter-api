@@ -25,7 +25,7 @@ class DirectMessaging {
                     ...conversation,
                     ...await element.$eval('.DMInboxItem', meta => {
                         let conversationMeta = {}
-                        conversationMeta.id = meta.getAttribute('data-thread-id')
+                        conversationMeta.thread_id = meta.getAttribute('data-thread-id')
                         conversationMeta.last_message_id = +meta.getAttribute('data-last-message-id')
                         conversationMeta.is_muted = meta.getAttribute('data-is-muted') === 'true'
 
@@ -92,9 +92,12 @@ class DirectMessaging {
                 await this.page.type('.DMComposer-editor', text)
                 await this.page.click('.messaging-text')
 
-                let conversation = { recipients: usernames }
+                let conversation = {
+                    status: 'Message sent',
+                    recipients: usernames
+                }
 
-                conversation.id = await this.page.$eval('.DMConversation', meta =>
+                conversation.thread_id = await this.page.$eval('.DMConversation', meta =>
                     meta.getAttribute('data-thread-id')
                 )
 
@@ -109,12 +112,38 @@ class DirectMessaging {
         }
     }
 
-    async reply(text, conversationId) {
+    async reply(text, threadId) {
+        try {
+            await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
 
+            await this.page.waitForSelector('.DMInbox-conversationItem')
+
+            await this.page.click('.DMInboxItem[data-thread-id="' + threadId + '"]')
+
+            await this.page.waitForSelector('.DMComposer-editor')
+            await this.page.type('.DMComposer-editor', text)
+            await this.page.click('.messaging-text')
+
+            let conversation = { status: 'Message sent' }
+
+            conversation.thread_id = await this.page.$eval('.DMConversation', meta =>
+                meta.getAttribute('data-thread-id')
+            )
+
+            return conversation
+        } catch(e) {
+            console.log(e)
+
+            return false
+        }
+    }
+
+    async messages(threadId) {
+        // TODO implement
     }
 
     async delete(conversationId) {
-
+        // TODO implement
     }
 }
 
