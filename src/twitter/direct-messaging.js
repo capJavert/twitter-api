@@ -6,6 +6,11 @@ class DirectMessaging {
         this.data = data
     }
 
+    /**
+     * List all message threads
+     *
+     * @returns {Promise<[]>}
+     */
     async list() {
         try {
             await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
@@ -50,6 +55,13 @@ class DirectMessaging {
         }
     }
 
+    /**
+     * Start new message thread
+     *
+     * @param text
+     * @param usernames
+     * @returns {Promise<{}>}
+     */
     async create(text, usernames) {
         if (!Array.isArray(usernames)) {
             usernames = [usernames]
@@ -113,6 +125,13 @@ class DirectMessaging {
         }
     }
 
+    /**
+     * Send message to thread
+     *
+     * @param text
+     * @param threadId
+     * @returns {Promise<{}>}
+     */
     async reply(text, threadId) {
         try {
             await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
@@ -139,6 +158,12 @@ class DirectMessaging {
         }
     }
 
+    /**
+     * List latest messages from thread
+     *
+     * @param threadId
+     * @returns {Promise<[]>}
+     */
     async messages(threadId) {
         try {
             await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
@@ -171,6 +196,12 @@ class DirectMessaging {
         }
     }
 
+    /**
+     * Delete message thread
+     *
+     * @param threadId
+     * @returns {Promise<boolean>}
+     */
     async delete(threadId) {
         try {
             await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
