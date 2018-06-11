@@ -1,5 +1,6 @@
 const User = require('./user')
 const DirectMessaging = require('./direct-messaging')
+const Helpers = require('../helpers/helpers')
 
 class Twitter {
     /**
@@ -23,28 +24,38 @@ class Twitter {
      *
      * @param username
      * @param password
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async login(username, password) {
         this.data.username = username
 
         try {
-            await this.page.goto(this.data.baseurl+"/login", {waitUntil: 'networkidle2'})
+            await this.page.goto(this.data.baseurl+'/login', {waitUntil: 'networkidle2'})
+
+            let response = {}
+            response.username = username
 
             if(this.data.session === null) {
                 await this.page.waitForSelector('button.submit')
 
-                await this.page.type(".js-username-field", username)
+                await this.page.type('.js-username-field', username)
+                await this.page.waitForFunction(
+                    'document.querySelector(\'.js-username-field\').value.length === ' + username.length
+                )
                 await this.page.type('.js-password-field', password)
+                await this.page.waitForFunction(
+                    'document.querySelector(\'.js-password-field\').value.length === ' + password.length
+                )
                 await this.page.click('button.submit')
 
-                console.log("Submit clicked")
+                console.log('Submit clicked')
 
                 await this.page.waitForSelector('.dashboard-left')
 
-                this.data.session = "SESSION_KEY"
+                this.data.session = 'SESSION_KEY'
 
-                console.log("Logged in")
+                response.status = 'Logged in'
+                console.log(response.status)
             } else {
                 await this.page.evaluate(session => {
                     for (let key in session) {
@@ -54,14 +65,15 @@ class Twitter {
                     }
                 }, this.data.session)
 
-                console.log("Logged from session")
+                response.status = 'Logged from session'
+                console.log(response.status)
             }
 
-            return true
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
 
     }
@@ -69,29 +81,33 @@ class Twitter {
     /**
      * Logout method
      *
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async logout() {
         if (this.data.session === null) {
-            console.log("Not logged in")
+            console.log('Not logged in')
 
             return false
         }
 
         try {
-            await this.page.goto(this.data.baseurl+"/logout", {waitUntil: 'networkidle2'})
+            await this.page.goto(this.data.baseurl+'/logout', {waitUntil: 'networkidle2'})
 
             await this.page.waitForSelector('button.js-submit')
-            await this.page.click("button.js-submit")
+            await this.page.click('button.js-submit')
             this.data.session = null
 
-            console.log("Logged out")
+            let response = {}
+            response.username = this.data.username
+            response.status = 'Logged out'
 
-            return true
+            console.log(response.status)
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
