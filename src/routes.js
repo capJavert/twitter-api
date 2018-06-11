@@ -25,6 +25,16 @@ const appRouter = function (app) {
         }
     }
 
+    const restricted = (request, response) => {
+        if (!isAuth(request, response)) {
+            return response.status(401).send({
+                status: 401,
+                name: 'Unauthorized',
+                message: 'Authorization Required'
+            })
+        }
+    }
+
     puppeteer.launch({headless: headless, timeout: 0}).then(async browser => {
         const page = await browser.newPage()
         await page.emulate(DevicesProfiles.desktop)
@@ -51,6 +61,8 @@ const appRouter = function (app) {
         })
 
         app.post('/follow/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -59,6 +71,8 @@ const appRouter = function (app) {
         })
 
         app.post('/unfollow/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -67,6 +81,8 @@ const appRouter = function (app) {
         })
 
         app.post('/tweet', async function(request, response) {
+            restricted(request, response)
+
             if(!request.body.text) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: text'})
             } else {
@@ -75,6 +91,8 @@ const appRouter = function (app) {
         })
 
         app.post('/like-recent-tweets/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -83,6 +101,8 @@ const appRouter = function (app) {
         })
 
         app.post('/like-tweet/:username/status/:id', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username || !request.params.id) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameters: username or status id'})
             } else {
@@ -91,6 +111,8 @@ const appRouter = function (app) {
         })
 
         app.post('/like-last-tweet/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -99,6 +121,8 @@ const appRouter = function (app) {
         })
 
         app.post('/follow-network/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -107,6 +131,8 @@ const appRouter = function (app) {
         })
 
         app.post('/follow-interests/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -115,6 +141,8 @@ const appRouter = function (app) {
         })
 
         app.get('/:username/followers', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -123,6 +151,8 @@ const appRouter = function (app) {
         })
 
         app.get('/followers', async function(request, response) {
+            restricted(request, response)
+
             if(!twitterUser.data.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -131,6 +161,8 @@ const appRouter = function (app) {
         })
 
         app.get('/:username/interests', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -139,6 +171,8 @@ const appRouter = function (app) {
         })
 
         app.get('/interests', async function(request, response) {
+            restricted(request, response)
+
             if(!twitterUser.data.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -147,6 +181,8 @@ const appRouter = function (app) {
         })
 
         app.post('/retweet/:username/status/:id', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username || !request.params.id) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameters: username or status id'})
             } else {
@@ -155,6 +191,8 @@ const appRouter = function (app) {
         })
 
         app.post('/retweet-last/:username', async function(request, response) {
+            restricted(request, response)
+
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
@@ -163,6 +201,8 @@ const appRouter = function (app) {
         })
 
         app.post('/login', async function (request, response) {
+            restricted(request, response)
+
             if(!request.body.username || !request.body.password) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameters: username or password'})
             } else {
