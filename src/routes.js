@@ -14,6 +14,12 @@ const sessions = [];
  * @param app
  */
 const appRouter = function (app) {
+    /**
+     * Check if user is authenticated
+     * @param request
+     * @param response
+     * @returns {*}
+     */
     const isAuth = (request, response) => {
         const auth = request.header("authorization");
 
@@ -26,6 +32,13 @@ const appRouter = function (app) {
         }
     }
 
+    /**
+     * Restrict access to methods
+     *
+     * @param request
+     * @param response
+     * @returns {*}
+     */
     const restricted = (request, response) => {
         if (!isAuth(request, response)) {
             return response.status(401).wrap({
@@ -36,6 +49,13 @@ const appRouter = function (app) {
         }
     }
 
+    /**
+     * Loads session according to provided API key
+     *
+     * @param authorization
+     * @param browser
+     * @returns {Promise<*>}
+     */
     const loadSession = async (authorization, browser) => {
         const key = authorization.replace('Bearer ', '')
 
@@ -296,6 +316,12 @@ const appRouter = function (app) {
             return response.wrap(await session.twitter.core.logout())
         })
 
+        /**
+         * Wrap responses to data attribute inside parent object
+         *
+         * @param data
+         * @returns {*}
+         */
         app.response.wrap = function (data) {
             return this.send({data: data})
         }
