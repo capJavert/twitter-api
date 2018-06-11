@@ -32,14 +32,14 @@ class DirectMessaging {
                     ...await element.$eval('.DMInboxItem', meta => {
                         let conversationMeta = {}
                         conversationMeta.thread_id = meta.getAttribute('data-thread-id')
-                        conversationMeta.last_message_id = +meta.getAttribute('data-last-message-id')
+                        conversationMeta.last_message_id = meta.getAttribute('data-last-message-id')
                         conversationMeta.is_muted = meta.getAttribute('data-is-muted') === 'true'
 
                         return conversationMeta
                     })
                 }
                 conversation.timestamp = await element.$eval('.DMInboxItem-timestamp ._timestamp', meta =>
-                    +meta.getAttribute('data-time')
+                    meta.getAttribute('data-time')
                 )
 
                 conversations.push(conversation)

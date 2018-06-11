@@ -58,6 +58,7 @@ class User {
             if (await this.page.$('.ProfileNav-list .user-actions.following') !== null) {
                 await this.page.waitForSelector('.ProfileNav-list .user-actions .js-follow-btn')
                 await this.page.click('.ProfileNav-list .user-actions .js-follow-btn')
+                response.status = 'User unfollowed'
             } else {
                 response.status = 'Not following'
                 console.log(response.status)
@@ -94,7 +95,15 @@ class User {
             await this.page.waitForSelector('.js-tweet-btn')
             await this.page.click('.js-tweet-btn')
 
-            // TODO assign tweetId
+            const streamLength = await this.page.$$eval('.stream > ol > li', elements =>
+                elements.length
+            )
+            await this.page.waitForFunction(
+                'document.querySelectorAll(\'.stream > ol > li\').length > ' + streamLength
+            )
+            tweet.id = await this.page.$eval('div[data-tweet-id]', element => {
+                return element.getAttribute('data-tweet-id')
+            })
 
             return tweet
         } catch(e) {
