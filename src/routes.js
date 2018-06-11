@@ -1,8 +1,11 @@
 const puppeteer = require('puppeteer')
 const Twitter = require('./twitter/twitter')
 const DevicesProfiles = require('./devices.profiles')
+const ConditionsUtil = require('./helpers/conditions-util')
+const ApiService = require('./services/api.service')
 
 const headless = true; // set to false for visual mode
+const apiService = new ApiService();
 
 /**
  * Run web app for Twitter API
@@ -10,6 +13,18 @@ const headless = true; // set to false for visual mode
  * @param app
  */
 const appRouter = function (app) {
+    const isAuth = (request, response) => {
+        const auth = request.header("authorization");
+
+        if (!ConditionsUtil.isNullOrEmpty(auth)) {
+            const key = auth.replace('Bearer ', '')
+
+            return apiService.isKeyValid(key)
+        } else {
+            return false
+        }
+    }
+
     puppeteer.launch({headless: headless, timeout: 0}).then(async browser => {
         const page = await browser.newPage()
         await page.emulate(DevicesProfiles.desktop)
@@ -18,7 +33,21 @@ const appRouter = function (app) {
         let twitterUser = twitter.user();
 
         app.get('/', function (req, res) {
-            res.send('NodeJS Twitter API')
+            const authStatus = isAuth(req, res)
+            console.log(authStatus)
+
+            res.send({
+                name: 'NodeJS Twitter API',
+                scope: ['twitter-api'],
+                auth: authStatus
+            })
+        })
+
+        app.get('/api/register', function (req, res) {
+            res.send({
+                scope: ['twitter-api'],
+                key: apiService.createKey()
+            })
         })
 
         app.post('/follow/:username', async function(request, response) {
