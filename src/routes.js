@@ -28,7 +28,7 @@ const appRouter = function (app) {
 
     const restricted = (request, response) => {
         if (!isAuth(request, response)) {
-            return response.status(401).send({
+            return response.status(401).wrap({
                 status: 401,
                 name: 'Unauthorized',
                 message: 'Authorization Required'
@@ -62,7 +62,7 @@ const appRouter = function (app) {
             const authStatus = isAuth(req, res)
             console.log(authStatus)
 
-            res.send({
+            res.wrap({
                 name: 'NodeJS Twitter API',
                 scope: ['twitter-api'],
                 auth: authStatus
@@ -70,7 +70,7 @@ const appRouter = function (app) {
         })
 
         app.get('/api/register', function (req, res) {
-            res.send({
+            res.wrap({
                 scope: ['twitter-api'],
                 key: apiService.createKey()
             })
@@ -78,7 +78,7 @@ const appRouter = function (app) {
 
         app.post('/follow/:username', async function(request, response) {
             restricted(request, response)
-            const context = await loadSession(
+            const session = await loadSession(
                 request.header("authorization"),
                 browser
             )
@@ -86,7 +86,7 @@ const appRouter = function (app) {
             if(!request.params.username) {
                 return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
             } else {
-                return response.wrap(await context.twitter.user.follow(request.params.username))
+                return response.wrap(await session.twitter.user.follow(request.params.username))
             }
         })
 
