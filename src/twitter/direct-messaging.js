@@ -1,3 +1,4 @@
+const Helpers = require('../helpers/helpers')
 
 class DirectMessaging {
     constructor(page, data) {
@@ -139,7 +140,35 @@ class DirectMessaging {
     }
 
     async messages(threadId) {
-        // TODO implement
+        try {
+            await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
+
+            await this.page.waitForSelector('.DMInbox-conversationItem')
+
+            await this.page.click('.DMInboxItem[data-thread-id="' + threadId + '"]')
+
+            await this.page.waitForSelector('.DirectMessage')
+
+            let elements = await this.page.$$('.DirectMessage')
+            let messages = []
+
+            for (let element of elements) {
+                let message = {}
+                message.content = Helpers.trimRight(
+                    await element.$eval('.DirectMessage-text', e => e.innerText), '\n'
+                )
+                message.status = (await element._remoteObject.description).indexOf(
+                    'DirectMessage--received') !== -1 ? 'received' : 'sent'
+
+                messages.push(message)
+            }
+
+            return messages
+        } catch(e) {
+            console.log(e)
+
+            return false
+        }
     }
 
     async delete(conversationId) {
