@@ -171,8 +171,28 @@ class DirectMessaging {
         }
     }
 
-    async delete(conversationId) {
-        // TODO implement
+    async delete(threadId) {
+        try {
+            await this.page.goto(this.data.baseurl+'/messages', {waitUntil: 'networkidle2'})
+
+            await this.page.waitForSelector('.DMInbox-conversationItem')
+            await this.page.click('.DMInboxItem[data-thread-id="' + threadId + '"]')
+
+            await this.page.waitForSelector('.DMConversation-convoSettings')
+            await this.page.click('.DMConversation-convoSettings')
+
+            await this.page.waitForSelector('.js-actionDeleteConversation')
+            await this.page.click('.js-actionDeleteConversation')
+
+            await this.page.waitForSelector('#confirm_dialog_submit_button')
+            await this.page.click('#confirm_dialog_submit_button')
+
+            return true
+        } catch(e) {
+            console.log(e)
+
+            return false
+        }
     }
 }
 
