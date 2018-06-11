@@ -9,7 +9,7 @@ class DirectMessaging {
     /**
      * List all message threads
      *
-     * @returns {Promise<[]>}
+     * @returns {Promise<*>}
      */
     async list() {
         try {
@@ -51,7 +51,7 @@ class DirectMessaging {
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -116,12 +116,15 @@ class DirectMessaging {
 
                 return conversation
             } else {
-                return false
+                return {
+                    status: 'No valid recipients',
+                    recipients: usernames
+                }
             }
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -154,7 +157,7 @@ class DirectMessaging {
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -162,7 +165,7 @@ class DirectMessaging {
      * List latest messages from thread
      *
      * @param threadId
-     * @returns {Promise<[]>}
+     * @returns {Promise<*>}
      */
     async messages(threadId) {
         try {
@@ -192,7 +195,7 @@ class DirectMessaging {
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -200,7 +203,7 @@ class DirectMessaging {
      * Delete message thread
      *
      * @param threadId
-     * @returns {Promise<boolean>}
+     * @returns {Promise<*>}
      */
     async delete(threadId) {
         try {
@@ -218,11 +221,15 @@ class DirectMessaging {
             await this.page.waitForSelector('#confirm_dialog_submit_button')
             await this.page.click('#confirm_dialog_submit_button')
 
-            return true
+            let response = {}
+            response.status = 'Thread deleted'
+            response.thread_id = threadId
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 }

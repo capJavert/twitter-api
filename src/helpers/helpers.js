@@ -70,6 +70,13 @@ class Helpers {
     static stripTags(html){
         return html.replace(/<[^>]+>/g, '')
     }
+
+    static wrapError(error) {
+        return {
+            name: error.name,
+            message: error.message
+        }
+    }
 }
 
 module.exports = Helpers

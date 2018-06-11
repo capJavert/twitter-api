@@ -11,7 +11,7 @@ class User {
      * Follow method
      *
      * @param username
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async follow(username) {
         try {
@@ -19,18 +19,24 @@ class User {
 
             await this.page.waitForSelector('.ProfileNav-list .user-actions .js-follow-btn')
 
+            let response = {}
+            response.username = username
+
             if (await this.page.$('.ProfileNav-list .user-actions.not-following') !== null) {
                 await this.page.waitForSelector('.ProfileNav-list .user-actions .js-follow-btn')
                 await this.page.click('.ProfileNav-list .user-actions .js-follow-btn')
+
+                response.status = 'User followed'
             } else {
-                console.log('Already Following')
+                response.status = 'Already Following'
+                console.log(response.status)
             }
 
-            return true
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -38,7 +44,7 @@ class User {
      * Unfollow method
      *
      * @param username
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async unfollow(username) {
         try {
@@ -46,18 +52,22 @@ class User {
 
             await this.page.waitForSelector('.ProfileNav-list .user-actions .js-follow-btn')
 
+            let response = {}
+            response.username = username
+
             if (await this.page.$('.ProfileNav-list .user-actions.following') !== null) {
                 await this.page.waitForSelector('.ProfileNav-list .user-actions .js-follow-btn')
                 await this.page.click('.ProfileNav-list .user-actions .js-follow-btn')
             } else {
-                console.log('Not following')
+                response.status = 'Not following'
+                console.log(response.status)
             }
 
-            return true
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -65,7 +75,7 @@ class User {
      * Tweet method
      *
      * @param text
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async tweet(text) {
         try {
@@ -74,6 +84,9 @@ class User {
                 await this.page.waitForSelector('.js-tweet-btn')
             }
 
+            let tweet = {}
+            tweet.text = text
+
             await this.page.waitForSelector('#tweet-box-home-timeline')
             await this.page.click('#tweet-box-home-timeline')
             await this.page.waitForSelector('#tweet-box-home-timeline.is-showPlaceholder')
@@ -81,11 +94,13 @@ class User {
             await this.page.waitForSelector('.js-tweet-btn')
             await this.page.click('.js-tweet-btn')
 
-            return true
+            // TODO assign tweetId
+
+            return tweet
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -94,7 +109,7 @@ class User {
      *
      * @param username
      * @param tweetId
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async like(tweetId, username) {
         try {
@@ -102,17 +117,23 @@ class User {
 
             await this.page.waitForSelector('.PermalinkOverlay-modal div.stream-item-footer .ProfileTweet-actionButton.js-actionFavorite')
 
+            let response = {}
+            response.tweetId = tweetId
+            response.username = username
+
             try {
                 await (await this.page.$('.PermalinkOverlay-modal div.stream-item-footer .ProfileTweet-actionButton.js-actionFavorite')).click()
+                response.status = 'Tweet liked'
             } catch (e) {
-                console.log('Already liked')
+                response.status = 'Already liked'
+                console.log(response.status)
             }
 
-            return true
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -120,13 +141,16 @@ class User {
      * Like recent tweets method
      *
      * @param username
-     * @returns {Promise.<*>}
+     * @returns {Promise<*>}
      */
     async likeRecentTweets(username) {
         try {
             await this.page.goto(this.data.baseurl+'/'+username, {waitUntil: 'networkidle2'})
 
             await this.page.waitForSelector('.ProfileTweet-action--favorite')
+
+            let response = {}
+            response.username = username
 
             for (let element of await this.page.$$('.ProfileTweet-actionButton.js-actionFavorite')) {
                 try {
@@ -136,7 +160,7 @@ class User {
                 }
             }
 
-            return await this.page.$$eval('div[data-tweet-id]', elements => {
+            response.tweetIds = await this.page.$$eval('div[data-tweet-id]', elements => {
                 let tweetIds = []
 
                 for (let element of elements) {
@@ -145,17 +169,21 @@ class User {
 
                 return tweetIds
             })
+
+            response.status = "Tweets liked"
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return []
+            return Helpers.wrapError(e)
         }
     }
 
     /**
      * Like last tweet method
      * @param username
-     * @returns {Promise.<*>}
+     * @returns {Promise<*>}
      */
     async likeLastTweet(username) {
         try {
@@ -163,19 +191,26 @@ class User {
 
             await this.page.waitForSelector('.ProfileTweet-action--favorite')
 
+            let response = {}
+            response.username = username
+
             try {
                 await (await this.page.$('.ProfileTweet-actionButton.js-actionFavorite')).click()
+                response.status = 'Tweet liked'
             } catch (e) {
-                console.log('Already liked')
+                response.status = 'Already liked'
+                console.log(response.status)
             }
 
-            return await this.page.$eval('div[data-tweet-id]', element => {
+            response.tweetId = await this.page.$eval('div[data-tweet-id]', element => {
                 return element.getAttribute('data-tweet-id')
             })
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -183,7 +218,7 @@ class User {
      * Follow network method
      *
      * @param username
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async followNetwork(username = '') {
         try {
@@ -192,6 +227,10 @@ class User {
             } else {
                 await this.page.goto(this.data.baseurl+'/followers', {waitUntil: 'networkidle2'})
             }
+
+            let response = {}
+            response.username = username === '' ? 'me' : username
+            response.status = "Network followed"
             
             await this.page.waitForSelector('.AppContent-main')
 
@@ -199,11 +238,21 @@ class User {
                 await element.click()
             }
 
-            return true
+            response.users = await this.page.$$eval('div[data-screen-name]', elements => {
+                let users = []
+
+                for (let element of elements) {
+                    users.push(element.getAttribute('data-screen-name'))
+                }
+
+                return users
+            })
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -211,7 +260,7 @@ class User {
      * Follow interests method
      *
      * @param username
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async followInterests(username) {
         try {
@@ -219,15 +268,29 @@ class User {
 
             await this.page.waitForSelector('.AppContent-main')
 
+            let response = {}
+            response.username = username
+            response.status = "Interests followed"
+
             for (let element of await this.page.$$('.AppContent-main .js-follow-btn')) {
                 await element.click()
             }
 
-            return true
+            response.users = await this.page.$$eval('div[data-screen-name]', elements => {
+                let users = []
+
+                for (let element of elements) {
+                    users.push(element.getAttribute('data-screen-name'))
+                }
+
+                return users
+            })
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -235,7 +298,7 @@ class User {
      * Get followers method
      *
      * @param username
-     * @returns {Promise.<*>}
+     * @returns {Promise<*>}
      */
     async followers(username = '') {
         try {
@@ -260,7 +323,7 @@ class User {
         } catch(e) {
             console.log(e)
 
-            return []
+            return Helpers.wrapError(e)
         }
     }
 
@@ -268,7 +331,7 @@ class User {
      * Get interests method
      *
      * @param username
-     * @returns {Promise.<*>}
+     * @returns {Promise<*>}
      */
     async interests(username = '') {
         try {
@@ -293,7 +356,7 @@ class User {
         } catch(e) {
             console.log(e)
 
-            return []
+            return Helpers.wrapError(e)
         }
     }
 
@@ -301,7 +364,7 @@ class User {
      * Retweet last tweet method
      *
      * @param username
-     * @returns {Promise.<*>}
+     * @returns {Promise<*>}
      */
     async retweetLastTweet(username) {
         try {
@@ -309,20 +372,27 @@ class User {
 
             await this.page.waitForSelector('.ProfileTweet-action--retweet')
 
+            let response = {}
+            response.username = username
+
             try {
                 await (await this.page.$('.ProfileTweet-actionButton.js-actionRetweet')).click()
                 await (await this.page.$('.RetweetDialog-retweetActionLabel')).click()
+                response.status = 'Retweeted'
             } catch (e) {
-                console.log('Already retweeted')
+                response.status = 'Already retweeted'
+                console.log(response.status)
             }
 
-            return await this.page.$eval('div[data-tweet-id]', element => {
+            response.tweetId = await this.page.$eval('div[data-tweet-id]', element => {
                 return element.getAttribute('data-tweet-id')
             })
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 
@@ -330,7 +400,7 @@ class User {
      * Retweet method
      * @param username
      * @param tweetId
-     * @returns {Promise.<boolean>}
+     * @returns {Promise<*>}
      */
     async retweet(tweetId, username) {
         try {
@@ -338,18 +408,27 @@ class User {
 
             await this.page.waitForSelector('.PermalinkOverlay-modal div.stream-item-footer .ProfileTweet-actionButton.js-actionRetweet')
 
+            let response = {}
+            response.username = username
+
             try {
                 await (await this.page.$('.PermalinkOverlay-modal div.stream-item-footer .ProfileTweet-actionButton.js-actionRetweet')).click()
                 await (await this.page.$('.RetweetDialog-retweetActionLabel')).click()
+                response.status = 'Retweeted'
             } catch (e) {
-                console.log('Already retweeted')
+                response.status = 'Already retweeted'
+                console.log(response.status)
             }
 
-            return true
+            response.tweetId = await this.page.$eval('div[data-tweet-id]', element => {
+                return element.getAttribute('data-tweet-id')
+            })
+
+            return response
         } catch(e) {
             console.log(e)
 
-            return false
+            return Helpers.wrapError(e)
         }
     }
 }
