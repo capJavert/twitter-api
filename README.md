@@ -9,8 +9,8 @@ To run this demo, you will need:
 
 ### Setup the code
 ```
-$ git clone https://github.com/capJavert/twitter-social-agent-framework.git
-$ cd twitter-social-agent-framework
+$ git clone https://github.com/capJavert/twitter-api.git
+$ cd twitter-api
 $ npm install
 ```
 
