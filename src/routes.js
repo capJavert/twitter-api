@@ -4,7 +4,7 @@ const DevicesProfiles = require('./devices.profiles')
 const ConditionsUtil = require('./helpers/conditions-util')
 const ApiService = require('./services/api.service')
 
-const headless = true; // set to false for visual mode
+const headless = false; // set to false for visual mode
 const apiService = new ApiService();
 const sessions = [];
 
@@ -89,11 +89,29 @@ const appRouter = function (app) {
             })
         })
 
-        app.get('/api/register', function (req, res) {
+        app.get('/keys/register', function (req, res) {
             res.wrap({
                 scope: ['twitter-api'],
                 key: apiService.createKey()
             })
+        })
+
+        app.delete('/keys/remove', async function (req, res) {
+            if(!req.body.key) {
+                return res.wrap({'status': 'error', 'message': 'missing a parameter: key'})
+            } else if(!apiService.isKeyValid(req.body.key)) {
+                return res.wrap({'status': 'error', 'message': 'Provided key is not valid'})
+            } else {
+                apiService.deleteKey(req.body.key)
+
+                const session = sessions[req.body.key]
+
+                if (!ConditionsUtil.isNullOrEmpty(session)) {
+                    session.context.close()
+                }
+
+                return res.wrap({'status': 'ok', 'message': 'Provided key is deleted and session is closed'})
+            }
         })
 
         app.post('/follow/:username', async function(request, response) {
