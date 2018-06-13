@@ -4,7 +4,7 @@ const DevicesProfiles = require('./devices.profiles')
 const ConditionsUtil = require('./helpers/conditions-util')
 const ApiService = require('./services/api.service')
 
-const headless = false; // set to false for visual mode
+const headless = true; // set to false for visual mode
 const apiService = new ApiService();
 const sessions = [];
 
@@ -107,7 +107,7 @@ const appRouter = function (app) {
                 const session = sessions[req.body.key]
 
                 if (!ConditionsUtil.isNullOrEmpty(session)) {
-                    session.context.close()
+                    await session.context.close()
                 }
 
                 return res.wrap({'status': 'ok', 'message': 'Provided key is deleted and session is closed'})
