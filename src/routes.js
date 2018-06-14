@@ -63,6 +63,24 @@ const appRouter = function (app) {
             const session = {}
             session.context = await browser.createIncognitoBrowserContext()
             session.page = await session.context.newPage()
+
+            /**
+             * Set request filters
+             * Resources like images and fonts do not need to be loaded
+             */
+            await session.page.setRequestInterception(true);
+
+            session.page.on('request', request => {
+                if (request.resourceType() === 'image' || request.resourceType() === 'font') {
+                    request.abort()
+                } else if(request.resourceType() === 'stylesheet' &&
+                    request.url().indexOf('twitter_core.bundle.css') === -1) {
+                    request.abort()
+                } else {
+                    request.continue()
+                }
+            });
+
             session.page.emulate(DevicesProfiles.desktop)
             session.twitter = {
                 core: await new Twitter(session.page),
