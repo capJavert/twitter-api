@@ -116,9 +116,9 @@ const appRouter = function (app) {
 
         app.delete('/keys/remove', async function (req, res) {
             if(!req.body.key) {
-                return res.wrap({'status': 'error', 'message': 'missing a parameter: key'})
+                return res.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: key'})
             } else if(!apiService.isKeyValid(req.body.key)) {
-                return res.wrap({'status': 'error', 'message': 'Provided key is not valid'})
+                return res.wrap({'isError': true, 'status': 'error', 'message': 'Provided key is not valid'})
             } else {
                 apiService.deleteKey(req.body.key)
 
@@ -128,7 +128,7 @@ const appRouter = function (app) {
                     await session.context.close()
                 }
 
-                return res.wrap({'status': 'ok', 'message': 'Provided key is deleted and session is closed'})
+                return res.wrap({'isError': true, 'status': 'ok', 'message': 'Provided key is deleted and session is closed'})
             }
         })
 
@@ -140,7 +140,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.follow(request.params.username))
             }
@@ -154,7 +154,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.unfollow(request.params.username))
             }
@@ -168,7 +168,7 @@ const appRouter = function (app) {
             )
 
             if(!request.body.text) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: text'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: text'})
             } else {
                 return response.wrap(await session.twitter.user.tweet(request.body.text))
             }
@@ -182,7 +182,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.likeRecentTweets(request.params.username))
             }
@@ -196,7 +196,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username || !request.params.id) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameters: username or status id'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameters: username or status id'})
             } else {
                 return response.wrap(await session.twitter.user.like(request.params.username, request.params.id))
             }
@@ -210,7 +210,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.likeLastTweet(request.params.username))
             }
@@ -224,7 +224,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.followNetwork(request.params.username))
             }
@@ -238,7 +238,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.followInterests(request.params.username))
             }
@@ -252,7 +252,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.followers(request.params.username))
             }
@@ -266,7 +266,7 @@ const appRouter = function (app) {
             )
 
             if(!session.twitter.user.data.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.followers())
             }
@@ -280,7 +280,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.interests(request.params.username))
             }
@@ -294,7 +294,7 @@ const appRouter = function (app) {
             )
 
             if(!session.twitter.user.data.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.interests())
             }
@@ -308,7 +308,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username || !request.params.id) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameters: username or status id'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameters: username or status id'})
             } else {
                 return response.wrap(await session.twitter.user.retweet(request.params.username, request.params.id))
             }
@@ -322,7 +322,7 @@ const appRouter = function (app) {
             )
 
             if(!request.params.username) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameter: username'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: username'})
             } else {
                 return response.wrap(await session.twitter.user.retweetLastTweet(request.params.username))
             }
@@ -336,7 +336,7 @@ const appRouter = function (app) {
             )
 
             if(!request.body.username || !request.body.password) {
-                return response.wrap({'status': 'error', 'message': 'missing a parameters: username or password'})
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameters: username or password'})
             } else {
                 return response.wrap(await session.twitter.core.login(request.body.username, request.body.password))
             }
@@ -359,7 +359,12 @@ const appRouter = function (app) {
          * @returns {*}
          */
         app.response.wrap = function (data) {
-            return this.send({data: data})
+            if (data.isError) {
+                delete data.isError;
+                return this.status(500).send({data: data})
+            } else {
+                return this.send({data: data})
+            }
         }
     })
 }
