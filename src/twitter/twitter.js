@@ -76,10 +76,14 @@ class Twitter {
      * @returns {Promise<*>}
      */
     async logout() {
-        if (this.data.session === null) {
-            console.log('Not logged in')
+        let response = {}
 
-            return false
+        if (this.data.session === null) {
+            response.username = null
+            response.status = 'Not logged in'
+            console.log(response.status)
+
+            return response
         }
 
         try {
@@ -93,7 +97,6 @@ class Twitter {
 
             this.data.session = null
 
-            let response = {}
             response.username = this.data.username
             response.status = 'Logged out'
 
