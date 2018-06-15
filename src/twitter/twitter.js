@@ -83,10 +83,14 @@ class Twitter {
         }
 
         try {
+            const waitForNavigation = this.page.waitForNavigation()
             await this.page.goto(this.data.baseurl+'/logout', {waitUntil: 'networkidle2'})
 
-            await this.page.waitForSelector('button.js-submit')
+            await waitForNavigation
             await this.page.click('button.js-submit')
+
+            await this.page.waitForSelector('a[href="/login"]')
+
             this.data.session = null
 
             let response = {}
