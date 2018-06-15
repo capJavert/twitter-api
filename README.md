@@ -18,6 +18,10 @@ $ npm install
 ```
 $ node server.js
 ```
+or
+```
+$ npm run rest-service
+```
 - you may need to allow connections in your firewall
 - server runs on localhost:3000
 - check src/routes.js for available methods

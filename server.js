@@ -10,5 +10,5 @@ app.use(cors());
 require("./src/routes.js")(app);
 
 const server = app.listen(3000, function () {
-    console.log("Listening on port %s...", server.address().port);
+    console.log("NodeJS Twitter API Server listening on port %s...", server.address().port);
 });
