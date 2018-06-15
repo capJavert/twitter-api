@@ -30,12 +30,12 @@ class Twitter {
         this.data.username = username
 
         try {
-            await this.page.goto(this.data.baseurl+'/login', {waitUntil: 'networkidle2'})
-
             let response = {}
             response.username = username
 
             if(this.data.session === null) {
+                await this.page.goto(this.data.baseurl+'/login', {waitUntil: 'networkidle2'})
+
                 await this.page.waitForSelector('button.submit')
 
                 await this.page.type('.js-username-field', username)
@@ -57,14 +57,6 @@ class Twitter {
                 response.status = 'Logged in'
                 console.log(response.status)
             } else {
-                await this.page.evaluate(session => {
-                    for (let key in session) {
-                        if (session.hasOwnProperty(key)) {
-                            sessionStorage.setItem(key, JSON.stringify(session[key]))
-                        }
-                    }
-                }, this.data.session)
-
                 response.status = 'Logged from session'
                 console.log(response.status)
             }
