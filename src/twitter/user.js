@@ -105,6 +105,8 @@ class User {
                 return element.getAttribute('data-tweet-id')
             })
 
+            tweet.status = "Tweet posted"
+
             return tweet
         } catch(e) {
             console.log(e)
