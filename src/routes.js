@@ -96,6 +96,9 @@ const appRouter = function (app) {
 
     puppeteer.launch({headless: headless, timeout: 0}).then(async browser => {
 
+        /**
+         * Keys management methods
+         */
         app.get('/', function (req, res) {
             const authStatus = isAuth(req, res)
             console.log(authStatus)
@@ -131,6 +134,10 @@ const appRouter = function (app) {
                 return res.wrap({'isError': true, 'status': 'ok', 'message': 'Provided key is deleted and session is closed'})
             }
         })
+
+        /**
+         * Twitter User methods
+         */
 
         app.post('/follow/:username', async function(request, response) {
             restricted(request, response)
@@ -328,6 +335,10 @@ const appRouter = function (app) {
             }
         })
 
+        /**
+         * Twitter Core methods
+         */
+
         app.post('/login', async function (request, response) {
             restricted(request, response)
             const session = await loadSession(
@@ -350,6 +361,76 @@ const appRouter = function (app) {
             )
 
             return response.wrap(await session.twitter.core.logout())
+        })
+
+        /**
+         * Twitter DM methods
+         */
+
+        app.get('/messages/threads', async function (request, response) {
+            restricted(request, response)
+            const session = await loadSession(
+                request.header("authorization"),
+                browser
+            )
+
+            return response.wrap(await session.twitter.directMessaging.list())
+        })
+
+        app.get('/messages/:threadid/list', async function (request, response) {
+            restricted(request, response)
+            const session = await loadSession(
+                request.header("authorization"),
+                browser
+            )
+
+            if(!request.params.threadid) {
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: thread id'})
+            } else {
+                return response.wrap(await session.twitter.directMessaging.messages(request.params.threadid))
+            }
+        })
+
+        app.post('/messages', async function(request, response) {
+            restricted(request, response)
+            const session = await loadSession(
+                request.header("authorization"),
+                browser
+            )
+
+            if(!request.body.text || !request.body.username) {
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameters: text or username'})
+            } else {
+                return response.wrap(await session.twitter.directMessaging.create(request.body.text))
+            }
+        })
+
+        app.put('/messages/:threadid', async function(request, response) {
+            restricted(request, response)
+            const session = await loadSession(
+                request.header("authorization"),
+                browser
+            )
+
+            if(!request.body.text || !request.param.threadid) {
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameters: text or thread id'})
+            } else {
+                return response.wrap(await session.twitter.directMessaging.reply(request.body.text, request.params.threadid))
+            }
+        })
+
+        app.delete('/messages/:threadid', async function(request, response) {
+            restricted(request, response)
+            const session = await loadSession(
+                request.header("authorization"),
+                browser
+            )
+
+            if(!request.param.threadid) {
+                return response.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: thread id'})
+            } else {
+                return response.wrap(await session.twitter.directMessaging.delete(request.params.threadid))
+            }
         })
 
         /**
