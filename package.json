@@ -1,7 +1,9 @@
 {
-  "name": "twitter-api",
+  "name": "@capjavert/twitter-api",
   "version": "1.0.0",
+  "private": false,
   "description": "",
+  "main": "src/routes.js",
   "dependencies": {
     "axios": "^0.18.0",
     "cors": "^2.8.4",
