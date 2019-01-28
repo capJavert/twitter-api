@@ -4,16 +4,17 @@ const DevicesProfiles = require('./devices.profiles')
 const ConditionsUtil = require('./helpers/conditions-util')
 const ApiService = require('./services/api.service')
 
-const headless = true; // set to false for visual mode
 const apiService = new ApiService();
 const sessions = [];
 
 /**
- * Run web app for Twitter API
- *
- * @param app
+ * Install twitter API to express app
+ * @param  {express.Application}  app             Express App instance
+ * @param  {String}  [baseRoute=''] Base route for twitter API
+ * @param  {Boolean} [headless=true] Should Chromium browser be run in headless mode
+ * @return {undefined}
  */
-const appRouter = function (app) {
+const appRouter = function (app, baseRoute = '', headless = true) {
     /**
      * Check if user is authenticated
      * @param request
@@ -99,7 +100,7 @@ const appRouter = function (app) {
         /**
          * Keys management methods
          */
-        app.get('/', function (req, res) {
+        app.get(baseRoute + '/twitter', function (req, res) {
             const authStatus = isAuth(req, res)
             console.log(authStatus)
 
@@ -110,14 +111,14 @@ const appRouter = function (app) {
             })
         })
 
-        app.get('/keys/register', function (req, res) {
+        app.get(baseRoute + '/twitter/keys/register', function (req, res) {
             res.wrap({
                 scope: ['twitter-api'],
                 key: apiService.createKey()
             })
         })
 
-        app.delete('/keys/remove', async function (req, res) {
+        app.delete(baseRoute + '/twitter/keys/remove', async function (req, res) {
             if(!req.body.key) {
                 return res.wrap({'isError': true, 'status': 'error', 'message': 'missing a parameter: key'})
             } else if(!apiService.isKeyValid(req.body.key)) {
@@ -139,7 +140,7 @@ const appRouter = function (app) {
          * Twitter User methods
          */
 
-        app.post('/follow/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/follow/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -153,7 +154,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/unfollow/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/unfollow/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -167,7 +168,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/tweet', async function(request, response) {
+        app.post(baseRoute + '/twitter/tweet', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -181,7 +182,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/like-recent-tweets/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/like-recent-tweets/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -195,7 +196,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/like-tweet/:username/status/:id', async function(request, response) {
+        app.post(baseRoute + '/twitter/like-tweet/:username/status/:id', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -209,7 +210,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/like-last-tweet/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/like-last-tweet/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -223,7 +224,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/follow-network/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/follow-network/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -237,7 +238,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/follow-interests/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/follow-interests/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -251,7 +252,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.get('/:username/followers', async function(request, response) {
+        app.get(baseRoute + '/twitter/:username/followers', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -265,7 +266,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.get('/followers', async function(request, response) {
+        app.get(baseRoute + '/twitter/followers', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -279,7 +280,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.get('/:username/interests', async function(request, response) {
+        app.get(baseRoute + '/twitter/:username/interests', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -293,7 +294,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.get('/interests', async function(request, response) {
+        app.get(baseRoute + '/twitter/interests', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -307,7 +308,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/retweet/:username/status/:id', async function(request, response) {
+        app.post(baseRoute + '/twitter/retweet/:username/status/:id', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -321,7 +322,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/retweet-last/:username', async function(request, response) {
+        app.post(baseRoute + '/twitter/retweet-last/:username', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -339,7 +340,7 @@ const appRouter = function (app) {
          * Twitter Core methods
          */
 
-        app.post('/login', async function (request, response) {
+        app.post(baseRoute + '/twitter/login', async function (request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -353,7 +354,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.get('/logout', async function (request, response) {
+        app.get(baseRoute + '/twitter/logout', async function (request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -367,7 +368,7 @@ const appRouter = function (app) {
          * Twitter DM methods
          */
 
-        app.get('/messages/threads', async function (request, response) {
+        app.get(baseRoute + '/twitter/messages/threads', async function (request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -377,7 +378,7 @@ const appRouter = function (app) {
             return response.wrap(await session.twitter.directMessaging.list())
         })
 
-        app.get('/messages/:threadid/list', async function (request, response) {
+        app.get(baseRoute + '/twitter/messages/:threadid/list', async function (request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -391,7 +392,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.post('/messages', async function(request, response) {
+        app.post(baseRoute + '/twitter/messages', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -405,7 +406,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.put('/messages/:threadid', async function(request, response) {
+        app.put(baseRoute + '/twitter/messages/:threadid', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
@@ -419,7 +420,7 @@ const appRouter = function (app) {
             }
         })
 
-        app.delete('/messages/:threadid', async function(request, response) {
+        app.delete(baseRoute + '/twitter/messages/:threadid', async function(request, response) {
             restricted(request, response)
             const session = await loadSession(
                 request.header("authorization"),
