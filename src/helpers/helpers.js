@@ -1,5 +1,3 @@
-const request = require('request')
-
 class Helpers {
     /**
      * Trim URL to the left
@@ -48,23 +46,6 @@ class Helpers {
      */
     static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    /**
-     * Get random quote from 'Quotes on Design' API service
-     * @returns {Promise}
-     */
-    static getQuote() {
-        return new Promise(function (resolve, reject) {
-            request('http://quotesondesign.com/wp-json/posts?filter[orderby]=rand&filter[posts_per_page]=1',
-                function (error, res, body) {
-                    if (!error && res.statusCode === 200) {
-                        resolve(Helpers.stripTags(JSON.parse(body)[0].content))
-                    } else {
-                        reject(error)
-                    }
-            })
-        })
     }
 
     static stripTags(html){

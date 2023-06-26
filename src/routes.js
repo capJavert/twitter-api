@@ -11,10 +11,10 @@ const sessions = [];
  * Install twitter API to express app
  * @param  {express.Application}  app             Express App instance
  * @param  {String}  [baseRoute=''] Base route for twitter API
- * @param  {Boolean} [headless=true] Should Chromium browser be run in headless mode
+ * @param  {string} [headless=new] Should Chromium browser be run in headless mode
  * @return {undefined}
  */
-const appRouter = function (app, baseRoute = '', headless = true) {
+const appRouter = function (app, baseRoute = '', headless = 'new') {
     /**
      * Check if user is authenticated
      * @param request
